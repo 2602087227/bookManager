@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="shortcut icon" href="#"/>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../plugins/element-ui/index.css" />
+</head>
+<body>
+
+<div id="book">
+<!--    <button @click="find">ssssss</button>-->
+        <el-table
+                :data="tableData"
+                style="width: 100%">
+            <el-table-column
+                    prop="name"
+                    label="书名"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="author"
+                    label="作者"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="publisher"
+                    label="出版社">
+            </el-table-column>
+            <el-table-column
+                    prop="price"
+                    label="价格">
+            </el-table-column>
+            <el-table-column
+                    prop="mark"
+                    label="描述">
+            </el-table-column>
+
+        </el-table>
+        <el-pagination
+                class="pageList"
+                :page-sizes="[10, 20, 30, 40]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="counts"
+                @size-change="handleSizeChange"
+                :current-page.sync="page"
+                @current-change="handleCurrentChange"
+        ></el-pagination>
+
+
+</div>
+<script src="../plugins/vue/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="../plugins/element-ui/index.js"></script>
+<!-- 引入axios -->
+<script src="../plugins/axios/axios.min.js"></script>
+<script>
+    new Vue({
+        el: "#book",
+        mounted(){
+            this.find();
+        },
+
+
+        data() {
+            return {
+                counts: 0,
+                page: 1,
+                pageSize: 10,
+                book:{
+                    id:100001,
+                    isbn:"9787559609274",
+                    name:"风格的要素",
+                    author:"[美] 威廉·斯特伦克",
+                    publisher:"北京联合出版公司",
+                    image:"images/9787559609274_2.jpg",
+                    price:27.40,
+                    stock:1100,
+                    mark:"《纽约时报》《华尔街日报》经典畅销书。美国常青藤盟校康奈尔大学英语写作教材。入选美国图书博览会20世纪百大经典英语写作书。《波士顿环球报》《圣保罗先锋报》强烈推荐书单。",
+                    createTime:"2023-01-01T15:36:29.000+00:00",
+                    updateTime:"2023-01-01T15:36:29.000+00:00",
+                    createUser:0,
+                    updateUser:0,
+                    isDeleted: 0
+                     },
+
+                tableData: []
+            }
+        },
+        methods: {
+            handleSizeChange(val) {
+                this.pageSize = val;
+                this.find();
+            },
+            handleCurrentChange(val) {
+                this.page = val;
+                this.find();
+            },
+            find(){
+                var _this= this;
+                axios({
+                    method:"get",
+                    url:"http://localhost:8080/book/page?page="+this.page+"&pageSize="+this.pageSize,
+                }).then(function (resp){
+
+                        _this.tableData = resp.data.data.records;
+                        _this.counts = resp.data.total;
+
+                })
+            }
+        }
+    })
+</script>
+</script>
+</body>
+</html>
