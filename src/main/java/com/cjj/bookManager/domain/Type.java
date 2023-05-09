@@ -8,52 +8,27 @@ import java.io.Serializable;
 import lombok.Data;
 
 /**
- * 用户信息
- * @TableName user
+ * 图书类型表
+ * @TableName type
  */
-@TableName(value ="user")
+@TableName(value ="type")
 @Data
-public class User implements Serializable {
+public class Type implements Serializable {
     /**
-     * 主键
+     * id
      */
     @TableId
     private Long id;
 
     /**
-     * 姓名
+     * 图书分类名称
      */
     private String name;
 
     /**
-     * 手机号
+     * 备注
      */
-    private String phone;
-
-    /**
-     * 性别
-     */
-    private String sex;
-
-    /**
-     * 头像
-     */
-    private String avatar;
-
-    /**
-     * 状态 0:禁用，1:正常
-     */
-    private Integer status;
-
-    /**
-     * 用户名
-     */
-    private String username;
-
-    /**
-     * 密码
-     */
-    private String password;
+    private String remarks;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

@@ -1,15 +1,14 @@
 package com.cjj.bookManager.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cjj.bookManager.common.R;
 import com.cjj.bookManager.domain.Book;
 import com.cjj.bookManager.service.BookService;
-import org.apache.logging.log4j.util.Strings;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Date;
+
 
 /**
  * ClassName: bookController
@@ -32,22 +31,10 @@ public class bookController {
         return R.success("新增成功");
     }
 
-    /**
-     * 分页查询
-     * @param page
-     * @param pageSize
-     * @param book
-     * @return
-     */
     @GetMapping("/page")
-    public R<Page> page(int page,int pageSize, Book book){
-        Page pageInfo = new Page(page,pageSize);
-        LambdaQueryWrapper<Book> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(Strings.isNotEmpty(book.getName()),Book::getName,book.getName());
-        queryWrapper.like(Strings.isNotEmpty(book.getAuthor()),Book::getAuthor,book.getAuthor());
-        queryWrapper.like(Strings.isNotEmpty(book.getMark()),Book::getMark,book.getMark());
-        bookService.page(pageInfo,queryWrapper);
-        return R.success(pageInfo);
+    public R<PageInfo> page(int page, int pageSize, Book book, String beginTime, String endTime){
+        PageInfo<Book> bookPageInfo = bookService.queryBookInfoAll(page, pageSize, book, beginTime, endTime);
+        return R.success(bookPageInfo);
     }
 
     @PutMapping
@@ -62,9 +49,9 @@ public class bookController {
         return R.success(book);
     }
 
-    @DeleteMapping
-    public R<String> delete(@RequestParam List<Long> ids){
-        boolean b = bookService.removeByIds(ids);
+    @DeleteMapping("/{id}")
+    public R<String> delete(@PathVariable Long id){
+        boolean b = bookService.removeById(id);
         if (b) {
             return R.success("删除成功");
         }

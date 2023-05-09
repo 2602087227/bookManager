@@ -3,6 +3,9 @@ package com.cjj.bookManager.mapper;
 import com.cjj.bookManager.domain.Book;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
 * @author admin
@@ -13,6 +16,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface BookMapper extends BaseMapper<Book> {
 
+    List<Book> queryBookInfoAll(@Param("book") Book book, @Param("beginTime") String beginTime, @Param("endTime")String endTime);
 }
 
 

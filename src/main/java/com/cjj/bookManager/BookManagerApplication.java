@@ -3,6 +3,10 @@ package com.cjj.bookManager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ClassName: bookManagerApplication
@@ -14,6 +18,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @Version: v1.0
  */
 @SpringBootApplication
+@ServletComponentScan
+@EnableCaching
+@EnableTransactionManagement
 public class BookManagerApplication {
     public static void main(String[] args) {
         SpringApplication.run(BookManagerApplication.class,args);

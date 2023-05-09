@@ -1,16 +1,18 @@
 package com.cjj.bookManager.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cjj.bookManager.common.R;
 import com.cjj.bookManager.domain.User;
 import com.cjj.bookManager.service.UserService;
+import com.cjj.bookManager.utils.RedisUtils;
+import com.cjj.bookManager.utils.TokenUtil;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.annotation.Retention;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -29,23 +31,27 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    RedisUtils redisUtils;
     /**
      * 新建用户
      * @param user
      * @return
      */
-    @PostMapping
+    @PostMapping("/register")
     public R<String> save(@RequestBody User user){
+        user.setStatus(1);
         String password = user.getPassword();
         password= DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
         user.setPassword(password);
         boolean save = userService.save(user);
         if (save!=false) {
-            return R.success("新增成功");
+            return R.success("注册成功");
         }else {
-            return R.error("新增失败");
+            return R.error("注册失败");
         }
     }
+
 
     /**
      * 用户登录
@@ -53,25 +59,29 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public R<User> login(@RequestBody User user){
-        String username = user.getUsername();
-        String password = user.getPassword();
-        // 对密码进行MD5加密
-        password = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUsername,username);
-        User oneUser = userService.getOne(queryWrapper);
-        //如果没有查询到数据就返回登录失败的结果
-        if (oneUser == null) {
-            return R.error("用户名不存在！");
-        }
+    public R<User> login(@RequestBody User user,String checkCode){
 
-        //如果密码不对就返回登录失败的结果
-        if (!oneUser.getPassword().equals(password)) {
-            return R.error("密码错误！");
-        }
+            String username = user.getUsername();
+            String password = user.getPassword();
+            // 对密码进行MD5加密
+            password = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
+            LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(User::getUsername, username);
+            User oneUser = userService.getOne(queryWrapper);
+            //如果没有查询到数据就返回登录失败的结果
+            if (oneUser == null) {
+                return R.error("用户名不存在！");
+            }
 
-        return R.success(oneUser);
+            //如果密码不对就返回登录失败的结果
+            if (!oneUser.getPassword().equals(password)) {
+                return R.error("密码错误！");
+            }
+            String token = TokenUtil.sign(user);
+
+
+            return R.success(oneUser).add("token",token);
+
     }
 
     /**
@@ -82,12 +92,13 @@ public class UserController {
      * @return
      */
     @GetMapping("/page")
-    public R<Page> page(int page, int pageSize, String name){
-        Page pageInfo = new Page(page, pageSize);
+    public R<PageInfo> page(int page, int pageSize, String name){
+        PageHelper.startPage(page,pageSize);
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(StringUtils.isNotEmpty(name),User::getName,name);
-        userService.page(pageInfo,queryWrapper);
-        return R.success(pageInfo);
+        List<User> list = userService.list(queryWrapper);
+        PageInfo<User> userPageInfo = new PageInfo<>(list);
+        return R.success(userPageInfo);
     }
 
 
@@ -102,13 +113,24 @@ public class UserController {
         return R.success("修改成功");
     }
 
+    @PostMapping("/edit")
+    public R<String> edit(@RequestBody User user){
+        User user1 = userService.getById(user.getId());
+        user1.setStatus(user.getStatus());
+        boolean b = userService.updateById(user1);
+        if (b) {
+            return R.success("修改成功");
+        }else{
+            return R.error("修改失败");
+        }
+    }
     @GetMapping("/{id}")
     public R<User> getById(@PathVariable Long id){
         User user= userService.getById(id);
         if (user!=null){
             return R.success(user);
         }
-        return R.error("没有查询到该员工");
+        return R.error("没有查询到该成员");
     }
 
     /**

@@ -4,7 +4,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cjj.bookManager.domain.Book;
 import com.cjj.bookManager.service.BookService;
 import com.cjj.bookManager.mapper.BookMapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
 * @author admin
@@ -15,6 +20,15 @@ import org.springframework.stereotype.Service;
 public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
     implements BookService{
 
+    @Autowired
+    private BookMapper bookMapper;
+
+    @Override
+    public PageInfo<Book> queryBookInfoAll(int page, int pageSize, Book book, String beginTime, String endTime) {
+        PageHelper.startPage(page,pageSize);
+        List<Book> bookInfoList = bookMapper.queryBookInfoAll(book,beginTime,endTime);
+        return new PageInfo<>(bookInfoList);
+    }
 }
 
 

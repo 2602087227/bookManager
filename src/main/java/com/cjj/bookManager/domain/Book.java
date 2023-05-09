@@ -1,11 +1,10 @@
 package com.cjj.bookManager.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.Data;
 
@@ -65,12 +64,14 @@ public class Book implements Serializable {
     /**
      * 创建时间
      */
-    private Date createTime;
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
-    private Date updateTime;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 
     /**
      * 创建人
@@ -86,6 +87,10 @@ public class Book implements Serializable {
      * 逻辑删除
      */
     private Integer isDeleted;
+    @TableField(exist = false)
+    private String admin;
+
+
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
